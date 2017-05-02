@@ -1,0 +1,33 @@
+{
+  "name": "funfoods",
+  "version": "1.0.0",
+  "description": "a microsoft nodejs bot for serving the food order requests of the sample online food outlet 'funfoods'",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/avenkatesan27/funfoods.git"
+  },
+  "keywords": [
+    "food",
+    "funfoods",
+    "bot",
+    "skype"
+  ],
+  "author": "Venkateshwaralu Srikarunyan",
+  "license": "ISC",
+  "dependencies": {
+    "botbuilder": "^3.7.0",
+    "dotenv-extended": "^2.0.0",
+    "hashmap": "^2.1.0",
+    "https": "^1.0.0",
+    "needle": "^1.6.0",
+    "node-uuid": "^1.4.8",
+    "request": "^2.81.0",
+    "restify": "^4.3.0",
+    "serve-static-restify": "^1.0.0",
+    "url": "^0.11.0"
+  }
+}
