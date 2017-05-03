@@ -4,6 +4,7 @@ require('dotenv-extended').load();
 // add your requirements
 var restify = require('restify'),
     builder = require('botbuilder'),
+    builder = require('botbuilder-calling'),
     fs = require('fs'),
     needle = require('needle'),
     request = require('request'),
@@ -27,11 +28,10 @@ var intentsArray = ["InitialOrder","MenuInquiry","MainCourseConfirmation","Extra
                     "DrinksConfirmation","OrderClosure","SkipSelection","None"];    
 
 // create chat bot
-//var connector = new builder.ChatConnector({ appId: process.env.FUNFOODS_APP_ID, appPassword: process.env.FUNFOODS_APP_PASSWORD });
-var connector = new builder.ConsoleConnector().listen();
+var connector = new builder.ChatConnector({ appId: process.env.FUNFOODS_APP_ID, appPassword: process.env.FUNFOODS_APP_PASSWORD });
 
 var bot = new builder.UniversalBot(connector, function (session) {
-
+new builder.UniversalBot()
     if(!session.isReset()){
         session.send("I am sorry I did not understand your command");
     }
@@ -276,11 +276,11 @@ var bot = new builder.UniversalBot(connector, function(session){
 
 // setup restify server
 var server = restify.createServer();
-/*server.get('/', restify.serveStatic({
+server.get('/', restify.serveStatic({
     directory: __dirname,
-    default: '/index.html'
-}));*/
-//server.post('/api/messages', connector.listen());
+    default: '/textChatView.html'
+}));
+server.post('/api/messages', connector.listen());
 server.listen(process.env.PORT || 3000, function(){
     console.log('%s listening to %s', server.name, server.url);
 });

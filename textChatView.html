@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="robots" content="noindex">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="../css/chat.css" type="text/css">				
+		<link rel="stylesheet" href="../css/login.css" type="text/css">
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+		<script src="../scripts/client/chatBotApp.js"></script>
+		<script src="../scripts/client/model/loginDO.js"></script>
+		<script src="../scripts/client/model/messageDO.js"></script>
+		<script src="../scripts/client/service/loginService.js"></script>
+		<script src="../scripts/client/controller/loginController.js"></script>
+		<script src="../scripts/client/service/chatMessangerService.js"></script>
+		<script src="../scripts/client/controller/textChatController.js"></script>
+		<script src="../scripts/client/directive/textChatDirectives.js"></script>
+		<script src="../scripts/client/directive/clickEventsDirectives.js"></script>
+	</head>
+	<body ng-app="chatBotApp">
+	
+		<div id="loginView" ng-controller="loginController">
+			<!-- BEGIN # BOOTSNIP INFO -->
+			<div class="container">
+				<div class="row">
+					<h1 class="text-center">Welcome to cognizant chatbot platform</h1>
+					<div class="signin round hollow text-center">
+						<a href="#" id="sign-In-Btn"></span> Sign In </a>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="#" id="sign-Up-Btn" onclick='alert("Under construction");'></span> Sign Up </a>
+					</div>
+				</div>
+			</div>
+			<!-- END # BOOTSNIP INFO -->
+
+			<!-- BEGIN # MODAL LOGIN -->
+				<div class="modal-dialog" id="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header" align="center">
+							<img class="img-circle" id="img_logo" src="../images/bot_logo.png">
+							<button id="close" type="button" class="close" ng-click="closeLoginModal();">
+								<span class="glyphicon glyphicon-remove"></span>
+							</button>
+						</div>
+						
+						<!-- Begin # DIV Form -->
+						<div id="div-forms">
+							<div class="errMsg" id="errMsgDiv" ng-cloak>
+								{{errLoginMsg}}
+							</div>
+						
+							<!-- Begin # Login Form -->
+							<form id="login-form" name="login-form" ng-submit="validateLogin()">
+								<div class="modal-body">
+									<label>User Name:</label>
+									<input id="login_username" name="uname" class="form-control" type="text" placeholder="Username" ng-model="userName" required>
+									<p></p>
+									<label>Password:</label>
+									<input id="login_password" name="pwd" class="form-control" type="password" placeholder="Password" ng-model="passWord" required>
+								</div>
+								<div class="modal-footer">
+									<div>
+										<button type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
+									</div>
+								</div>
+							</form>
+							<!-- End # Login Form -->							
+						</div>
+						<!-- End # DIV Form -->
+					</div>
+				</div>
+				<div class="successMsg" id="successMsgDiv" ng-cloak>
+					{{successLoginMsg}}
+				</div>
+		<!-- END # MODAL LOGIN -->	
+		</div>
+		
+		
+		<div id="chatView" ng-controller="textChatController">
+			<p>&nbsp;</p>
+			<div class="logoutMsg" id="logoutMsgDiv" ng-cloak>
+				{{logoutMsg}}
+			</div>
+			<div class="errMsg" ng-if='serverErrMsg' ng-cloak>
+				{{serverErrMsg}}
+			</div>
+			<div class="container text-center">
+				<div class="row">
+					<div class="openvca-round-hollow text-center" id="chatlink">
+						<a href="#" id="addClass"><span class="glyphicon glyphicon-comment"></span> Open VCA bot </a>
+					</div>
+				</div>
+			</div>
+
+			<div class="popup-box" id="qnimate">
+				<div class="popup-head">		
+					<div class="popup-head-left pull-left">
+						<img src="../images/user_icon.jpg">Venkatesan A
+					</div>
+					<div class="popup-head-right pull-right">
+						<div class="btn-group">
+							<button class="chat-header-button" data-toggle="dropdown" title="menu" type="button" aria-expanded="false">
+								<i class="glyphicon glyphicon-menu-hamburger"></i> 
+							</button>
+							<ul role="menu" class="dropdown-menu pull-right">
+								<li><a href="#">User Profile</a></li>
+								<li><a href="#" ng-click="signOut()">Sign out</a></li>
+							</ul>
+						</div>
+						<div class="btn-group">
+							<button class="chat-header-button" data-toggle="dropdown" title="settings" type="button" aria-expanded="false">
+								<i class="glyphicon glyphicon-cog"></i> 
+							</button>
+							<ul role="menu" class="dropdown-menu pull-right">
+								<li><a href="#">Block</a></li>
+								<li><a id="clearChat" href="#" ng-click="clearChat()">Clear Chat</a></li>
+								<li><a href="#">Email Chat</a></li>
+							</ul>
+						</div>
+						<button data-widget="remove" id="removeClass" class="chat-header-button pull-right" title="turn-off" type="button"><i class="glyphicon glyphicon-off"></i></button>
+					</div>
+				</div>
+				
+				<div class="popup-messages">
+					<div id="chatConversationDialog" class="direct-chat-messages">
+						<!--Message to the left embeds here-->
+						<div id="userTextMsg"><user-text-msg></user-text-msg></div>
+					</div>	
+				</div>
+				
+				<div class="popup-messages-footer">
+					<textarea id="status_message" placeholder="Type something..." rows="10" cols="20" name="message" ng-model="msgPrompt" ng-enter="sendMessage()"></textarea>
+					<span><button class="bg_none pull-right" title="Send" ng-click="sendMessage()"><i class="glyphicon glyphicon-send"></i></button></span>
+					<div class="btn-footer">
+						<button class="bg_none" title="Video"><i class="glyphicon glyphicon-film"></i> </button>
+						<button class="bg_none" title="Image"><i class="glyphicon glyphicon-camera"></i> </button>
+						<button class="bg_none" title="Attach File"><i class="glyphicon glyphicon-paperclip"></i> </button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
