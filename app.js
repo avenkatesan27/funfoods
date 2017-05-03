@@ -27,10 +27,14 @@ var intentsArray = ["InitialOrder","MenuInquiry","MainCourseConfirmation","Extra
                     "DrinksConfirmation","OrderClosure","SkipSelection","None"];    
 
 // create chat bot
-var connector = new builder.ChatConnector({ appId: process.env.FUNFOODS_APP_ID, appPassword: process.env.FUNFOODS_APP_PASSWORD });
+//var connector = new builder.ChatConnector({ appId: process.env.FUNFOODS_APP_ID, appPassword: process.env.FUNFOODS_APP_PASSWORD });
+var connector = new builder.ConsoleConnector().listen();
 
 var bot = new builder.UniversalBot(connector, function (session) {
+
+    if(!session.isReset()){
         session.send("I am sorry I did not understand your command");
+    }
 });
 
 // integrate with the LUIS endpoint
@@ -46,7 +50,7 @@ bot.dialog('/initialOrder', function (session, args) {
         convId = session.message.address.conversation.id;
         session.send(msgConfig.greetingMsg1 + utils.getTimeSession());
         session.send(msgConfig.greetingMsg2);
-        session.endDialog("initialOrder end!");       
+        session.endDialog();       
 }).triggerAction({ 
     matches: intentsArray[0]
 });
@@ -59,7 +63,7 @@ bot.dialog('/menuInquiry', function (session,args) {
             session.send(msgConfig.menuInquiryChoiceMsg);
             session.send(response);
         }) ;
-        session.endDialog("menuInquiry end!");
+        session.endDialog();
     }
 ).triggerAction({ 
     matches: intentsArray[1]
@@ -100,7 +104,7 @@ bot.dialog('/mainCourseConfirmation', function (session, args) {
                 session.send(response);
             }); 
         }
-        session.endDialog("mainCourseConfirmation end!");
+        session.endDialog();
     }
 ).triggerAction({ 
     matches: intentsArray[2]
@@ -122,7 +126,7 @@ bot.dialog('/extrasConfirmation', function (session, args) {
                 session.send(msgConfig.startersIdentifyMsg);
                 session.send(response);
         });
-        session.endDialog("extrasConfirmation end!");
+        session.endDialog();
     }   
 ).triggerAction({ 
     matches: intentsArray[3]
@@ -145,7 +149,7 @@ bot.dialog('/startersConfirmation', function (session, args) {
                 session.send(msgConfig.drinksIdentifyMsg);
                 session.send(response);
         }); 
-        session.endDialog("startersConfirmation end!");
+        session.endDialog();
     }   
 ).triggerAction({ 
     matches: intentsArray[4]
@@ -165,7 +169,7 @@ bot.dialog('/drinksConfirmation', function (session, args) {
             }
         }
         session.send(msgConfig.sumMsg1);
-        session.endDialog("drinksConfirmation end!");
+        session.endDialog();
     }   
 ).triggerAction({ 
     matches: intentsArray[5]
@@ -203,7 +207,7 @@ bot.dialog('/orderClosure', function (session) {
                 session.endConversation(msgConfig.orderClosureMsg2);
             }
         });
-        session.endDialog("orderClosure end!");  
+        session.endDialog();  
 		session.reset();	
     }
        
@@ -272,11 +276,11 @@ var bot = new builder.UniversalBot(connector, function(session){
 
 // setup restify server
 var server = restify.createServer();
-server.get('/', restify.serveStatic({
+/*server.get('/', restify.serveStatic({
     directory: __dirname,
     default: '/index.html'
-}));
-server.post('/api/messages', connector.listen());
+}));*/
+//server.post('/api/messages', connector.listen());
 server.listen(process.env.PORT || 3000, function(){
     console.log('%s listening to %s', server.name, server.url);
 });
