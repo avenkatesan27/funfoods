@@ -23,40 +23,51 @@ var utterances = [];
 var entityCount = 0 ;
 var intentCount = 0 ;
 var currentIntent = '';
-var intentsArray = ["MenuInquiry","MainCourseConfirmation","ExtrasConfirmation","StartersConfirmation",
-                    "DrinksConfirmation","OrderClosure","SkipSelection"];    
+var intentsArray = ["InitialOrder","MenuInquiry","MainCourseConfirmation","ExtrasConfirmation","StartersConfirmation",
+                    "DrinksConfirmation","OrderClosure","SkipSelection","None"];    
 
 // create chat bot
 var connector = new builder.ChatConnector({ appId: process.env.FUNFOODS_APP_ID, appPassword: process.env.FUNFOODS_APP_PASSWORD });
 
-var bot = new builder.UniversalBot(connector, function (session,args) {
+var bot = new builder.UniversalBot(connector, function (session) {
+        session.send("I am sorry I did not understand your command");
+});
+
+// integrate with the LUIS endpoint
+// this loads the environment variables from the .env file
+var luisModel = 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/ac37e3b5-9037-4be8-8cf5-c9b367a5fd01?subscription-key=32811f4c604845498e8ac02d34b14460&verbose=true&timezoneOffset=0&q=';
+bot.recognizer(new builder.LuisRecognizer(luisModel));
+
+bot.dialog('/initialOrder', function (session, args) {      
+        intentCount++;
+        currentIntent = intentsArray[0];
         // Simply defer to help dialog for un-recognized intents
         session.userData.cart = [];
         convId = session.message.address.conversation.id;
         session.send(msgConfig.greetingMsg1 + utils.getTimeSession());
         session.send(msgConfig.greetingMsg2);
+        session.endDialog("initialOrder end!");       
+}).triggerAction({ 
+    matches: intentsArray[0]
 });
 
-// integrate with the LUIS endpoint
-var luisModel = 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/a48955a8-3974-44fe-b9fe-89efde80dc36?subscription-key=f9f8e406ec524c76a70fad97a0d351a8&verbose=true&timezoneOffset=0&q=';
-bot.recognizer(new builder.LuisRecognizer(luisModel));
-
-bot.dialog('/menuInquiry', function (session,args) {
+bot.dialog('/menuInquiry', function (session,args) {       
         intentCount++;
-        currentIntent = intentsArray[0];
+        currentIntent = intentsArray[1];
         console.log('In menuInquiry handler'+ currentIntent);
         orderService.getBusinessCardItems(config.REST_SERVICE_LOOKUP_ID_MENU,function(response){
             session.send(msgConfig.menuInquiryChoiceMsg);
             session.send(response);
-            }) ;
+        }) ;
+        session.endDialog("menuInquiry end!");
     }
 ).triggerAction({ 
-    matches: intentsArray[0]
+    matches: intentsArray[1]
 });
 
-bot.dialog('/mainCourseConfirmation', function (session, args) {
+bot.dialog('/mainCourseConfirmation', function (session, args) {      
         intentCount++;
-        currentIntent = intentsArray[1];
+        currentIntent = intentsArray[2];
         console.log('In mainCourseConfirmation handler'+ currentIntent);
         var intent = args.intent;
         var item = builder.EntityRecognizer.findEntity(intent.entities, config.ENTITY_MAINCOURSE_ITEM);
@@ -89,14 +100,15 @@ bot.dialog('/mainCourseConfirmation', function (session, args) {
                 session.send(response);
             }); 
         }
+        session.endDialog("mainCourseConfirmation end!");
     }
 ).triggerAction({ 
-    matches: intentsArray[1]
+    matches: intentsArray[2]
 });
 
-bot.dialog('/extrasConfirmation', function (session, args) {
+bot.dialog('/extrasConfirmation', function (session, args) {      
         intentCount++;
-        currentIntent = intentsArray[2];
+        currentIntent = intentsArray[3];
         console.log('In extrasConfirmation handler'+ currentIntent);
         if(null!=args && null != args.intent && null!= args.intent.entities){
             var intent = args.intent;
@@ -109,15 +121,16 @@ bot.dialog('/extrasConfirmation', function (session, args) {
        orderService.getBusinessCardItems(config.REST_SERVICE_LOOKUP_ID_STARTERS, function(response){
                 session.send(msgConfig.startersIdentifyMsg);
                 session.send(response);
-            });  
+        });
+        session.endDialog("extrasConfirmation end!");
     }   
 ).triggerAction({ 
-    matches: intentsArray[2]
+    matches: intentsArray[3]
 });
 
-bot.dialog('/startersConfirmation', function (session, args) {
+bot.dialog('/startersConfirmation', function (session, args) {      
         intentCount++;
-        currentIntent = intentsArray[3];
+        currentIntent = intentsArray[4];
         console.log('In startersConfirmation handler'+ currentIntent);
         if(null!=args && null != args.intent && null!= args.intent.entities){
             var intent = args.intent;
@@ -131,15 +144,16 @@ bot.dialog('/startersConfirmation', function (session, args) {
        orderService.getBusinessCardItems(config.REST_SERVICE_LOOKUP_ID_DRINKS,function(response){
                 session.send(msgConfig.drinksIdentifyMsg);
                 session.send(response);
-            }); 
+        }); 
+        session.endDialog("startersConfirmation end!");
     }   
 ).triggerAction({ 
-    matches: intentsArray[3]
+    matches: intentsArray[4]
 });
 
-bot.dialog('/drinksConfirmation', function (session, args) {
+bot.dialog('/drinksConfirmation', function (session, args) {       
         intentCount++;
-        currentIntent = intentsArray[4];
+        currentIntent = intentsArray[5];
         console.log('In DrinksConfirmation handler'+ currentIntent);
         if(null!=args && null != args.intent && null!= args.intent.entities){
             var intent = args.intent;
@@ -151,14 +165,15 @@ bot.dialog('/drinksConfirmation', function (session, args) {
             }
         }
         session.send(msgConfig.sumMsg1);
+        session.endDialog("drinksConfirmation end!");
     }   
 ).triggerAction({ 
-    matches: intentsArray[4]
+    matches: intentsArray[5]
 });
 
 bot.dialog('/orderClosure', function (session) {
         intentCount++;
-        currentIntent = intentsArray[5];
+        currentIntent = intentsArray[6];
         console.log('In OrderClosure handler'+ currentIntent);
         console.log(session.userData.cart);
         var cartListJson = '';
@@ -170,15 +185,9 @@ bot.dialog('/orderClosure', function (session) {
             sumMsg = msgConfig.sumMsg2 + response;
         });
         
-       /* utterances.push('hi');
+        utterances.push('hi');
         utterances.push('helo');
-        utterances.push('how r u');
         utterances.push('menu');
-        utterances.push('pizza');
-        utterances.push('zen');
-        utterances.push('coke');
-        utterances.push('thank u');
-        utterances.push('welcome');*/
 
         /*var utterances = vcaAppServer.utterances;
         console.log("UTTERANCES"+utterances);*/
@@ -193,40 +202,53 @@ bot.dialog('/orderClosure', function (session) {
                 //Write logic to handle saving conv data upon failure...
                 session.endConversation(msgConfig.orderClosureMsg2);
             }
-        });   
+        });
+        session.endDialog("orderClosure end!");  
+		session.reset();	
     }
        
 ).triggerAction({ 
-    matches: intentsArray[5]
+    matches: intentsArray[6]
 });
 
 bot.dialog('/skipSelection', function (session, args) {
-    intentCount++;
-    console.log(currentIntent);
-    
-    switch (currentIntent) 
-    { 
-        case intentsArray[1]:
-            session.beginDialog('/extrasConfirmation');
-            break;
+        console.log("Inside SkipSelection Intent Handler");
+        intentCount++;
+        console.log(currentIntent);
         
-        case intentsArray[2]:
-            session.beginDialog('/startersConfirmation');
-            break;
-        
-        case intentsArray[3]:
-            session.beginDialog('/drinksConfirmation');
-            break;
-        
-        case intentsArray[4]:
-            session.beginDialog('/orderClosure');
-            break;
-        
-        default: 
-            session.beginDialog('/menuInquiry');
-    }
+        switch (currentIntent) 
+        { 
+            case intentsArray[2]:
+                session.beginDialog('/extrasConfirmation');
+                break;
+            
+            case intentsArray[3]:
+                session.beginDialog('/startersConfirmation');
+                break;
+            
+            case intentsArray[4]:
+                session.beginDialog('/drinksConfirmation');
+                break;
+            
+            case intentsArray[5]:
+                session.beginDialog('/orderClosure');
+                break;
+            
+            default: 
+                session.beginDialog('/');
+        }
+        session.endDialog("skipSelection end!");
 }).triggerAction({ 
-    matches: intentsArray[6]
+    matches: intentsArray[7]
+});
+
+bot.dialog('/none', function (session, args) {
+    console.log("Inside None Intent handler")
+        intentCount++;
+        session.send("Please repharse");    
+        session.endDialog("none end!");
+}).triggerAction({ 
+    matches: intentsArray[8]
 });
 
 /* 
@@ -264,7 +286,7 @@ server.listen(process.env.PORT || 3000, function(){
 //=========================================================
 
 // Sends greeting message when the bot is first added to a conversation
-/*bot.on('conversationUpdate', function (message) {
+bot.on('conversationUpdate', function (message) {
     if (message.membersAdded) {
         message.membersAdded.forEach(function (identity) {
             if (identity.id === message.address.bot.id) {
@@ -275,4 +297,4 @@ server.listen(process.env.PORT || 3000, function(){
             }
         });
     }
-});*/
+});
